@@ -30,6 +30,7 @@
     "tailwind-merge": "^2.5.2"
   },
   "devDependencies": {
+    "@types/dompurify": "^3.0.5",
     "@types/markdown-it": "^14.1.2",
     "@types/node": "^20",
     "@types/react": "^18",
