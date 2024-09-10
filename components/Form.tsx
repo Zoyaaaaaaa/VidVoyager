@@ -35,11 +35,75 @@ export default function YoutubeBot() {
     const [selectedAction, setSelectedAction] = useState<string | null>(null);
     const [error, setError] = useState<string | null>(null);
 
+    // async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
+    //     event.preventDefault();
+    //     setLoading(true);
+    //     setError(null);
+    //     const body = { videoId: value, keyword: searchKeyword };
+    //     try {
+    //         if (selectedAction === "summary") {
+    //             const response = await generateSummaryService(value);
+    //             if (!response || !response.data) {
+    //                 throw new Error("Failed to generate summary. No data returned.");
+    //             }
+    //             setSummary(response.data);
+    //             setAnswer(null);
+    //             setVideoId(extractYouTubeID(value));
+                
+    //             // Fetch and display transcript search results
+    //             const transcript = await fetchTranscript(value);
+    //             if (transcript) {
+    //                 const results = searchTranscript(transcript, searchKeyword);
+    //                 setSearchResults(results);
+    //             } else {
+    //                 console.error('Error fetching transcript.');
+    //             }
+    //         } else if (selectedAction === "question") {
+    //             const response = await fetch('/api/ask-question', {
+    //                 method: 'POST',
+    //                 headers: { 'Content-Type': 'application/json' },
+    //                 body: JSON.stringify({ videoId: value, question: customQuestion }),
+    //             });
+              
+    //             const result = await response.json();
+    //             if (response.ok) {
+    //                 setAnswer(result.data);
+    //                 setSummary(null);
+    //             } else {
+    //                 throw new Error(result.error || "Failed to get answer to your question.");
+    //             }
+    //         } else if (selectedAction === "search") {
+    //             let response = await fetch('/api/search', {
+    //                 method: 'POST',
+    //                 headers: {
+    //                     'Content-Type': 'application/json',
+    //                 },
+    //                 body: JSON.stringify(body),
+    //             });
+
+    //             const result = await response.json();
+    //             if (response.ok) {
+    //                 setSearchResults(result.data);
+    //                 setSummary(null);
+    //                 setAnswer(null);
+    //             } else {
+    //                 throw new Error(result.error);
+    //             }
+    //         }
+    //     } catch (error) {
+    //         console.error('Error during form submission:', error);
+    //         setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
     async function handleFormSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setLoading(true);
         setError(null);
+    
         const body = { videoId: value, keyword: searchKeyword };
+    
         try {
             if (selectedAction === "summary") {
                 const response = await generateSummaryService(value);
@@ -56,7 +120,8 @@ export default function YoutubeBot() {
                     const results = searchTranscript(transcript, searchKeyword);
                     setSearchResults(results);
                 } else {
-                    console.error('Error fetching transcript.');
+                    console.error('Error fetching transcript: Transcript data is empty or invalid.');
+                    setError("Failed to fetch transcript.");
                 }
             } else if (selectedAction === "question") {
                 const response = await fetch('/api/ask-question', {
@@ -64,39 +129,43 @@ export default function YoutubeBot() {
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({ videoId: value, question: customQuestion }),
                 });
-              
-                const result = await response.json();
-                if (response.ok) {
-                    setAnswer(result.data);
-                    setSummary(null);
-                } else {
+                
+                if (!response.ok) {
+                    const result = await response.json();
                     throw new Error(result.error || "Failed to get answer to your question.");
                 }
+                
+                const result = await response.json();
+                setAnswer(result.data);
+                setSummary(null);
             } else if (selectedAction === "search") {
-                let response = await fetch('/api/search', {
+                const response = await fetch('/api/search', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(body),
                 });
-
-                const result = await response.json();
-                if (response.ok) {
-                    setSearchResults(result.data);
-                    setSummary(null);
-                    setAnswer(null);
-                } else {
+    
+                if (!response.ok) {
+                    const result = await response.json();
                     throw new Error(result.error);
                 }
+    
+                const result = await response.json();
+                setSearchResults(result.data);
+                setSummary(null);
+                setAnswer(null);
             }
         } catch (error) {
-            console.error('Error during form submission:', error);
+            console.error('Error during form submission:', {
+                message: error instanceof Error ? error.message : 'Unknown error',
+                stack: error instanceof Error ? error.stack : 'No stack available',
+            });
             setError(`An error occurred: ${error instanceof Error ? error.message : 'Unknown error'}`);
         } finally {
             setLoading(false);
         }
     }
+    
     
     function generateYouTubeLink(videoId: string | null, timestamp: number): string {
         if (!videoId) {
