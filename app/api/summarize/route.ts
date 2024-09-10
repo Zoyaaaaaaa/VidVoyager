@@ -1,9 +1,10 @@
-// import { NextRequest } from "next/server";
+
+// import { NextRequest, NextResponse } from "next/server";
 // import { fetchTranscript } from "@/lib/youtube-transcript";
-// import {  OpenAI } from "openai";
+// import { OpenAI } from "openai";
 
 // const openai = new OpenAI({
-//     apiKey: process.env.OPENAI_API_KEY as string, 
+//     apiKey: process.env.OPENAI_API_KEY as string,
 // });
 
 // // Transform transcript data
@@ -19,7 +20,7 @@
 // }
 
 // // Generate summary or answer based on custom question
-// export async function generateSummary(link: string, customQuestion: string = "") {
+// async function generateSummary(link: string, customQuestion: string = "") {
 //     try {
 //         console.log("Generating text...");
 
@@ -99,9 +100,7 @@
 
 //         // Validate videoId
 //         if (!videoId || typeof videoId !== "string") {
-//             return new Response(JSON.stringify({ error: "Invalid video ID" }), {
-//                 status: 400,
-//             });
+//             return NextResponse.json({ error: "Invalid video ID" }, { status: 400 });
 //         }
 
 //         // Generate summary
@@ -110,62 +109,35 @@
 //             summary = await generateSummary(videoId, customQuestion);
 //         } catch (error) {
 //             console.error("Error processing request:", error);
-//             return new Response(
-//                 JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+//             return NextResponse.json(
+//                 { error: error instanceof Error ? error.message : "Unknown error" },
 //                 { status: 500 }
 //             );
 //         }
 
-//         return new Response(
-//             JSON.stringify({ data: summary, error: null }),
+//         return NextResponse.json(
+//             { data: summary, error: null },
 //             { status: 200 }
 //         );
 //     } catch (error) {
 //         console.error("Error parsing request:", error);
-//         return new Response(
-//             JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }),
+//         return NextResponse.json(
+//             { error: error instanceof Error ? error.message : "Unknown error" },
 //             { status: 400 }
 //         );
-//     }
-// }
-
-// // Service function to call API endpoint
-// export async function generateSummaryService(videoId: string, customQuestion: string = "") {
-//     const url = "/api/summarize";
-//     try {
-//         const response = await fetch(url, {
-//             method: "POST",
-//             headers: {
-//                 "Content-Type": "application/json",
-//             },
-//             body: JSON.stringify({ videoId, customQuestion }), // Add customQuestion to the request body
-//         });
-
-//         if (!response.ok) {
-//             throw new Error(`HTTP error! status: ${response.status}`);
-//         }
-
-//         const data = await response.json();
-//         if (data.error) {
-//             throw new Error(data.error.message);
-//         }
-
-//         return data;
-//     } catch (error) {
-//         console.error("Failed to generate summary:", error);
-//         return { data: null, error: { message: error instanceof Error ? error.message : "Unknown error" } };
 //     }
 // }
 import { NextRequest, NextResponse } from "next/server";
 import { fetchTranscript } from "@/lib/youtube-transcript";
 import { OpenAI } from "openai";
 
+// Initialize OpenAI client
 const openai = new OpenAI({
     apiKey: process.env.OPENAI_API_KEY as string,
 });
 
-// Transform transcript data
-function transformData(data: any[]) {
+// Transform transcript data into text format
+function transformData(data: any[]): { data: any[], text: string } {
     let text = "";
     data.forEach((item) => {
         text += item.text + " ";
@@ -177,7 +149,7 @@ function transformData(data: any[]) {
 }
 
 // Generate summary or answer based on custom question
-async function generateSummary(link: string, customQuestion: string = "") {
+async function generateSummary(link: string, customQuestion: string = ""): Promise<string> {
     try {
         console.log("Generating text...");
 
@@ -188,7 +160,7 @@ async function generateSummary(link: string, customQuestion: string = "") {
         }
 
         const transformedData = transformData(transcript);
-        console.log(transformedData);
+        console.log("Transformed Data:", transformedData);
 
         // Create prompt based on custom question or summary
         const prompt = customQuestion
@@ -213,7 +185,7 @@ async function generateSummary(link: string, customQuestion: string = "") {
                    - Use a friendly, conversational tone in the first person.
                 
                 3. **📹 Video Description:**
-                    -Craft a catchy heading and organize the description into clear, informative sections. Integrate relevant keywords and highlight key takeaways to enhance SEO and improve the video's discoverability.
+                    - Craft a catchy heading and organize the description into clear, informative sections. Integrate relevant keywords and highlight key takeaways to enhance SEO and improve the video's discoverability.
                 
                 ---
                 
@@ -236,21 +208,28 @@ async function generateSummary(link: string, customQuestion: string = "") {
             max_tokens: 500, // Adjust as needed
         });
 
-        console.log("API Response:", response.choices[0]?.message?.content);
+        console.log("API Response:", response);
 
-        if (response.choices[0]?.message?.content) {
+        if (response.choices && response.choices[0]?.message?.content) {
             return response.choices[0].message.content;
         } else {
             throw new Error("Invalid response format from the AI API");
         }
     } catch (error) {
-        console.error("Error generating text:", error);
+        console.error("Error generating text:", {
+            // message: error.message,
+            // stack: error.stack,
+            // additionalInfo: {
+            //     link,
+            //     customQuestion,
+            // },
+        });
         throw new Error(error instanceof Error ? error.message : "Unknown error");
     }
 }
 
 // Handle POST request for generating summary
-export async function POST(req: NextRequest) {
+export async function POST(req: NextRequest): Promise<NextResponse> {
     try {
         const body = await req.json();
         const { videoId, customQuestion } = body;
@@ -265,7 +244,14 @@ export async function POST(req: NextRequest) {
         try {
             summary = await generateSummary(videoId, customQuestion);
         } catch (error) {
-            console.error("Error processing request:", error);
+            console.error("Error processing request:", {
+                // message: error.message,
+                // stack: error.stack,
+                // additionalInfo: {
+                //     videoId,
+                //     customQuestion,
+                // },
+            });
             return NextResponse.json(
                 { error: error instanceof Error ? error.message : "Unknown error" },
                 { status: 500 }
@@ -277,7 +263,10 @@ export async function POST(req: NextRequest) {
             { status: 200 }
         );
     } catch (error) {
-        console.error("Error parsing request:", error);
+        console.error("Error parsing request:", {
+            // message: error.message,
+            // stack: error.stack,
+        });
         return NextResponse.json(
             { error: error instanceof Error ? error.message : "Unknown error" },
             { status: 400 }
