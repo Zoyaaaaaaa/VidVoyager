@@ -1,36 +1,59 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Video Insight Generator 🤖
 
-## Getting Started
+Welcome to the **Video Insight Generator**! This tool allows you to extract valuable insights from YouTube videos, including:
 
-First, run the development server:
+- **Summarizing** any YouTube video by URL or ID 📄
+- **Asking questions** about the video's content for detailed answers ❓
+- **Searching the transcript** of the video for specific keywords 🔍
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+---
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Features
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 1. **Generate Video Summary** 📜
+   Enter the YouTube video URL or ID, and get a concise summary of the video’s main ideas.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 2. **Ask a Question** 🤔
+   Want to know more about a specific part of a video? Ask a question, and get an answer based on the video content.
 
-## Learn More
+### 3. **Search Video Transcript** 🔎
+   Search for keywords within the transcript of the video. Find exact moments when topics are discussed.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## How to Use
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Input the YouTube URL or Video ID** 🔗:
+   Simply paste the URL of a YouTube video or just enter its video ID (the part after `https://www.youtube.com/watch?v=`).
 
-## Deploy on Vercel
+2. **Select an Action** 🎯:
+   - **Generate Summary** 📜: Get a summary of the video.
+   - **Ask a Question** ❓: Ask a question about the video's content.
+   - **Search Transcript** 🔍: Search for specific keywords in the transcript of the video.
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Get Results** 💡:
+   Based on your selection, the tool will:
+   - Provide a **Summary** of the video 📄.
+   - Offer an **Answer** to your question ❓.
+   - Display **Search Results** from the transcript 🔎.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## Example Use Cases
+
+- **Summarize a YouTube tutorial** 🎓 to quickly get an overview of what’s being taught.
+- **Ask a specific question** about a video, like “What are the main takeaways from this lecture?” 📚
+- **Search for key topics** in educational or interview videos 🎤 to jump directly to the relevant parts.
+
+---
+
+## Technologies Used 🛠️
+
+- **React** : To build the user interface.
+- **Next.js** : For server-side rendering and API integrations.
+- **Tailwind CSS** : For responsive and clean design.
+- **YouTube API** : For retrieving video transcripts and details.
+
+---
+
+**Enjoy exploring your favorite YouTube videos in a whole new way! 🚀**
